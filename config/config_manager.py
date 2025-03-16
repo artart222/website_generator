@@ -32,7 +32,9 @@ class ConfigManager:
             with open(self.config_file, "r") as file:
                 user_config = json.load(file)
                 if self.validate(user_config):
-                    self.config.update(user_config)  # Override defaults with user config
+                    self.config.update(
+                        user_config
+                    )  # Override defaults with user config
         except (FileNotFoundError, json.JSONDecodeError):
             print(
                 f"Warning: Config file '{self.config_file}' not found or invalid. Using defaults."
