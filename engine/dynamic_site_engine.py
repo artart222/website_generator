@@ -13,9 +13,9 @@ class DynamicSiteEngine:
         """
         Initializes the engine and its components.
         """
-        self.config.load()  # Load configuration
         self.content_repo.load()  # Load content
-        self.template_engine.setup()  # Set up templates
+        # TODO: complete this in future
+        # self.template_engine.setup()  # Set up templates
 
     def generate_site(self):
         """
@@ -23,12 +23,14 @@ class DynamicSiteEngine:
         """
         # Render all content items
         for content_item in self.content_repo.list_all():
-            html = self.template_engine.render(content_item)
-            output_path = self.router.resolve(content_item.slug)
+            html = self.template_engine.render("post.html", {"post": content_item})
+            output_path = self.router.resolve(content_item.slug)  # Get file path
             self.storage_manager.save(output_path, html)
 
         # Generate index page
-        index_html = self.template_engine.render_index(self.content_repo.list_all())
+        index_html = self.template_engine.render(
+            "index.html", {"posts": self.content_repo.list_all()}
+        )
         self.storage_manager.save("index.html", index_html)
 
     def deploy(self):
