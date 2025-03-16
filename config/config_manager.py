@@ -17,7 +17,7 @@ class ConfigManager:
         """
         return {
             "site_name": "My Blog",
-            "base_url": "http://localhost:8000",
+            "base_url": "http://localhost:8080",
             "theme": "default",
             "output_dir": "output",
             "template_dir": "templates",
@@ -31,7 +31,8 @@ class ConfigManager:
         try:
             with open(self.config_file, "r") as file:
                 user_config = json.load(file)
-                self.config.update(user_config)  # Override defaults with user config
+                if self.validate(user_config):
+                    self.config.update(user_config)  # Override defaults with user config
         except (FileNotFoundError, json.JSONDecodeError):
             print(
                 f"Warning: Config file '{self.config_file}' not found or invalid. Using defaults."
@@ -42,7 +43,8 @@ class ConfigManager:
         Saves the current configuration to the config file.
         """
         with open(self.config_file, "w") as file:
-            json.dump(self.config, file, indent=4)
+            if self.validate(self.config):
+                json.dump(self.config, file, indent=4)
 
     def get(self, key, default=None):
         """
@@ -50,11 +52,14 @@ class ConfigManager:
         """
         return self.config.get(key, default)
 
-    def validate(self):
+    def validate(self, config):
         """
         Validates the configuration to ensure required keys are present.
         """
-        required_keys = ["site_name", "base_url", "output_dir", "template_dir"]
+        required_keys = config
         for key in required_keys:
             if key not in self.config:
                 raise ValueError(f"Missing required configuration key: {key}")
+        for key in self.config:
+            if key not in required_keys:
+                print(f"Warning: Unknown configuration key: {key}")
